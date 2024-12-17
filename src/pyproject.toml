@@ -1,0 +1,29 @@
+[tool.poetry]
+name = "documents-hub"
+version = "0.1.0"
+description = ""
+authors = [""]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.12,<3.13"
+fastapi = "^0.115.6"
+pymongo = {extras = ["snappy"], version = "^4.10.1"}
+python-dotenv = "^1.0.1"
+fastapi-utils = "^0.2.1"
+fastapi-injector = "^0.6.2"
+injector = "^0.22.0"
+fastapi-camelcase = "^1.0.5"
+uuid = "^1.30"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.4"
+pytest-asyncio = "^0.24.0"
+black = "^24.10.0"
+isort = "^5.13.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
