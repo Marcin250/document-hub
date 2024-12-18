@@ -2,6 +2,7 @@ import uuid
 from datetime import datetime
 
 from fastapi import FastAPI, HTTPException, Response, UploadFile
+from fastapi.responses import StreamingResponse
 from fastapi_injector import Injected, attach_injector
 from fastapi_utils.cbv import cbv
 from fastapi_utils.inferring_router import InferringRouter
@@ -57,9 +58,24 @@ class DocumentController:
         if not file:
             return Response(status_code=404)
 
-        return Response(
-            content=self.__grid_fs_bucket().open_download_stream(_id).read(),
-            status_code=200,
+        file_stream_source = self.__grid_fs_bucket().open_download_stream(_id)
+
+        async def file_stream():
+            try:
+                while True:
+                    chunk = file_stream_source.read(MAX_CHUNK_SIZE_IN_BYTES)
+                    if not chunk:
+                        break
+                    yield chunk
+            except Exception as e:
+                raise HTTPException(status_code=500, detail=str(e))
+            finally:
+                file_stream_source.close()
+
+        return StreamingResponse(
+            file_stream(),
+            media_type=file_stream_source.content_type,
+            headers={"Content-Disposition": f"attachment; filename={file_stream_source._id}"}
         )
 
 
