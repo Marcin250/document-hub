@@ -9,10 +9,15 @@ if [[ $(sysctl vm.max_map_count) != *"262144"* ]]; then
 fi
 
 if [ ! -f "$ROOT_PATH/src/.env" ]; then
-    echo "1"
     cp "$ROOT_PATH/src/.env.example" "$ROOT_PATH/src/.env"
 fi
 
+echo "⬇️ Turning containers down"
 docker compose -f $ROOT_PATH/development/docker-compose.yml down --remove-orphans
-
-eval "${ROOT_PATH}/development/build-environment.sh"
+echo "🔨 Build containers"
+docker compose -f $ROOT_PATH/development/docker-compose.yml build
+echo "⬆️ Turning containers up"
+docker compose -f $ROOT_PATH/development/docker-compose.yml --env-file "$ROOT_PATH/src/.env" up -d
+echo "🎨 Applying code reformat"
+docker exec -it document-hub-app black .
+docker exec -it document-hub-app pylint .

@@ -75,7 +75,9 @@ class DocumentController:
         return StreamingResponse(
             file_stream(),
             media_type=file_stream_source.content_type,
-            headers={"Content-Disposition": f"attachment; filename={file_stream_source._id}"}
+            headers={
+                "Content-Disposition": f"attachment; filename={file_stream_source._id}"
+            },
         )
 
 

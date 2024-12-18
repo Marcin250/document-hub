@@ -2,38 +2,38 @@ services:
   document-hub-app:
     container_name: document-hub-app
     image: document-hub-app
+    volumes:
+      - ../src:/app:rw,cached
+    env_file:
+      - ../src/.env
     build:
-      dockerfile: ../src/Dockerfile
+      dockerfile: ../development/Dockerfile
       context: ../src
     depends_on:
       - document-hub-mongodb
-    env_file:
-      - ../src/.env
-    volumes:
-      - ../src:/app:rw,cached
     networks:
       documents-hub-development: { }
     restart: always
     tty: true
 
   document-hub-mongodb:
-    image: mongo:latest
     container_name: document-hub-mongodb
+    image: mongo:latest
+    volumes:
+      - ./docker/mongodb/data:/data/db
+      - ./docker/mongodb/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d:ro
+    ports:
+      - "27017:27017"
     environment:
       MONGO_INITDB_ROOT_USERNAME: "root"
       MONGO_INITDB_ROOT_PASSWORD: "r00t_password"
       MONGO_INITDB_DATABASE: "documents"
-    ports:
-      - "27017:27017"
-    volumes:
-      - ./docker/mongodb/data:/data/db
-      - ./docker/mongodb/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d:ro
     networks:
       documents-hub-development: { }
 
   document-hub-nginx:
-    image: nginx:latest
     container_name: document-hub-nginx
+    image: nginx:latest
     volumes:
       - ./docker/nginx/conf.d:/etc/nginx/conf.d/
     ports:
